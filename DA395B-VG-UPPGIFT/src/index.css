@@ -1,0 +1,17 @@
+label {
+    padding-right: 20px;
+}
+
+.radio-btn {
+    margin-right: 5px;
+}
+
+#img-frame {
+    border: 1px solid gray;
+    height: 300px;
+}
+
+img {
+    max-height: 100%;
+    max-width: 100%;
+}
