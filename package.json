@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "jquery": "^4.0.0",
+    "react-cookie": "^8.1.2"
+  }
+}
