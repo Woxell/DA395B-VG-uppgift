@@ -45,9 +45,6 @@ function App() {
           headers: { apikey: apiKey },
           dataType: "json"
         });
-        setImageSrc(""); //Should clear the PreviewPanel
-        setResultUrl(result.result || ""); //Should render ResultImage
-        //clear #input
       }
 
       if (sourceFile) {
@@ -75,9 +72,19 @@ function App() {
       <Header />
       <ImageProcessorSection handleInputChange={handleInputChange} />
       <hr />
-      <PreviewPanel imageSrc={imageSrc} onClick={pixelate} />
-      <ResultImage imageSrc={resultUrl} />
 
+      <div className="row g-3">
+        <div className="col-12 col-md-6 d-flex">
+          <div className="w-100">
+            <PreviewPanel imageSrc={imageSrc} onClick={pixelate} />
+          </div>
+        </div>
+        <div className="col-12 col-md-6 d-flex">
+          <div className="w-100">
+            <ResultImage imageSrc={resultUrl} />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
