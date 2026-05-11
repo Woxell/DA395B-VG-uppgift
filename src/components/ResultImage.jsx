@@ -18,7 +18,7 @@ function ResultImage({ imageSrc }) {
     return (
         <div>
             <div className="image-box">
-                <img src={imageSrc} alt="Pixelated result" />
+                {imageSrc ? <img src={imageSrc} alt="Pixelated result" /> : null}
             </div>
             <DownloadButton onClick={download} />
         </div>

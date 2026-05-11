@@ -35,7 +35,6 @@ function App() {
       console.error("Missing API key: set API_KEY in .env");
       return;
     }
-
     try {
       if (imageSrc) {
         const result = await $.ajax({
@@ -45,6 +44,8 @@ function App() {
           headers: { apikey: apiKey },
           dataType: "json"
         });
+        console.log(result);
+        setResultUrl(result.result || "");
       }
 
       if (sourceFile) {
@@ -60,6 +61,7 @@ function App() {
           contentType: false,
           dataType: "json"
         });
+        console.log(result);
         setResultUrl(result.result || "");
       }
     } catch (error) {

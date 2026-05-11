@@ -5,7 +5,7 @@ function PreviewPanel({ imageSrc, onClick }) {
     return (
         <>
             <div className="image-box">
-                <img src={imageSrc} alt="Input image" />
+                {imageSrc ? <img src={imageSrc} alt="Input image" /> : null}
             </div>
             <SubmitButton onClick={onClick} />
         </>
