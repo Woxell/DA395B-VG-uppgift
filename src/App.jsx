@@ -22,7 +22,6 @@ function App() {
         setImageSrc(reader.result || "");
       };
       reader.readAsDataURL(file);
-      setImageSrc("");
       setSourceFile(file);
     } else if (e.target.value.trim()) {
       setImageSrc(e.target.value);
@@ -36,29 +35,25 @@ function App() {
       return;
     }
     try {
-      if (imageSrc) {
+      if (sourceFile) {
+        const result = await $.ajax({
+          url: `${baseURL}/upload`,
+          method: "POST",
+          headers: { apikey: apiKey },
+          data: sourceFile,
+          processData: false,
+          contentType: sourceFile.type || "application/octet-stream",
+          dataType: "json"
+        });
+        setResultUrl(result.result || "");
+      }
+      else if (imageSrc) {
+        console.log("imageSrc truthy: " + imageSrc);
         const result = await $.ajax({
           url: `${baseURL}/url`,
           method: "GET",
           data: { url: imageSrc },
           headers: { apikey: apiKey },
-          dataType: "json"
-        });
-        console.log(result);
-        setResultUrl(result.result || "");
-      }
-
-      if (sourceFile) {
-        const formData = new FormData();
-        formData.append("file", sourceFile);
-
-        const result = await $.ajax({
-          url: `${baseURL}/upload`,
-          method: "POST",
-          headers: { apikey: apiKey },
-          data: formData,
-          processData: false,
-          contentType: false,
           dataType: "json"
         });
         console.log(result);
