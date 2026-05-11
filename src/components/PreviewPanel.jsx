@@ -1,13 +1,13 @@
-import SubmitButton from './SubmitButton'
+import SubmitButton from "./SubmitButton"
 
-function PreviewPanel({ imageSrc }) {
+function PreviewPanel({ imageSrc, onClick }) {
 
     return (
         <>
-            <div id="img-frame">
+            <div className="image-box">
                 <img src={imageSrc} alt="Input image" />
             </div>
-            <SubmitButton />
+            <SubmitButton onClick={onClick} />
         </>
     )
 }

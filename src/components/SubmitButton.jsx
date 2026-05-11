@@ -1,6 +1,6 @@
-function SubmitButton() {
+function SubmitButton({ onClick }) {
     return (
-        <button class="form-control">Pixelate!</button>
+        <button className="form-control" onClick={onClick} >Pixelate!</button>
     )
 }
 export default SubmitButton

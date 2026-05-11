@@ -1,6 +1,14 @@
-function ResultImage() {
+import DownloadButton from "./DownloadButton"
+
+function ResultImage({ imageSrc }) {
+
+
     return (
-        <div id="img-frame">
+        <div>
+            <div className="image-box">
+                <img src={imageSrc} alt="Pixelated result" />
+            </div>
+            <DownloadButton />
         </div>
     )
 }

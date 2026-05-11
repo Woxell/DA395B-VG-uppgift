@@ -1,7 +1,7 @@
 function UrlForm({ handleInputChange }) {
     return (
         <>
-            <input id="input" type="text" onChange={handleInputChange} className="form-control" placeholder="Paste image URL here"></input>
+            <input id="url-input" type="text" onChange={handleInputChange} className="form-control" placeholder="Paste image URL here" />
         </>
     )
 }

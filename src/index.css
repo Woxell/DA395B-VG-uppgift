@@ -6,12 +6,14 @@ label {
     margin-right: 5px;
 }
 
-#img-frame {
+.image-box {
     border: 1px solid gray;
     height: 300px;
+    display: block;
 }
 
 img {
     max-height: 100%;
     max-width: 100%;
 }
+
