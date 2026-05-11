@@ -10,6 +10,6 @@ Info: https://marketplace.apilayer.com/face_pixelizer-api
 
 ## Libraries:
 * React (npm)
-* React Cookie (npm)
+* react-bootstrap (npm)
 * jQuery (npm)
-* Boostrap (CDN, it was deperecated at npm)
+* Bootstrap (npm)
