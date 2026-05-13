@@ -1,6 +1,8 @@
+import { Button } from "react-bootstrap"
+
 function SubmitButton({ onClick }) {
     return (
-        <button className="form-control" onClick={onClick} >Pixelate!</button>
+        <Button className="btn btn-lg w-100" onClick={onClick}>Pixelate!</Button>
     )
 }
 export default SubmitButton

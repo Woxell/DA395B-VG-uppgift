@@ -1,6 +1,8 @@
+import { Button } from "react-bootstrap"
+
 function DownloadButton({ onClick }) {
     return (
-        <button className="form-control" onClick={onClick}>Download</button>
+        <Button className="btn btn-lg w-100" onClick={onClick}>Download!</Button>
     )
 }
 export default DownloadButton

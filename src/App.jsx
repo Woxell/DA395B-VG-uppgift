@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import $ from 'jquery'
 import './App.css'
+import { Alert } from 'react-bootstrap'
 import Header from './components/Header'
 import ImageProcessorSection from './components/ImageProcessorSection'
 import PreviewPanel from './components/PreviewPanel'
@@ -13,6 +14,7 @@ function App() {
   const [imageSrc, setImageSrc] = useState("");
   const [resultUrl, setResultUrl] = useState("");
   const [sourceFile, setSourceFile] = useState(null);
+  const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
 
   const handleInputChange = (e) => {
     const file = e.target.files?.[0] ?? null;
@@ -34,7 +36,12 @@ function App() {
       console.error("Missing API key: set API_KEY in .env");
       return;
     }
+    if (!sourceFile && !imageSrc) {
+      setAlert({ show: true, message: "Add an image URL or upload a file before pixelating.", variant: "warning" });
+      return;
+    }
     try {
+      setAlert({ show: false });
       if (sourceFile) {
         const result = await $.ajax({
           url: `${baseURL}/upload`,
@@ -64,6 +71,10 @@ function App() {
     }
   }
 
+  const handleEmptyDownload = () => {
+    setAlert({ show: true, message: "No pixelated image available to download.", variant: "danger" });
+  };
+
   return (
     <div className="container">
       <Header />
@@ -78,10 +89,16 @@ function App() {
         </div>
         <div className="col-12 col-md-6 d-flex">
           <div className="w-100">
-            <ResultImage imageSrc={resultUrl} />
+            <ResultImage imageSrc={resultUrl} onEmptyDownload={handleEmptyDownload} />
           </div>
         </div>
       </div>
+
+      {alert.show ? (
+        <Alert variant={alert.variant} className="mt-4" role="alert">
+          {alert.message}
+        </Alert>
+      ) : null}
     </div>
   )
 }
