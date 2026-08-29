@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import $ from 'jquery'
 import './App.css'
 import { Alert } from 'react-bootstrap'
 import Header from './components/Header'
@@ -8,13 +7,15 @@ import PreviewPanel from './components/PreviewPanel'
 import ResultImage from './components/ResultImage'
 
 function App() {
-  const baseURL = "https://api.apilayer.com/face_pixelizer";
-  const apiKey = import.meta.env.VITE_APILAYER_API_KEY;
+  const baseURL = "https://api.eu.apyhub.com/apyhub/pixelize";
+  const apiKey = import.meta.env.VITE_APYHUB_API_KEY;
 
   const [imageSrc, setImageSrc] = useState("");
   const [resultUrl, setResultUrl] = useState("");
   const [sourceFile, setSourceFile] = useState(null);
+  const [downloadBlob, setDownloadBlob] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleInputChange = (e) => {
     const file = e.target.files?.[0] ?? null;
@@ -32,6 +33,9 @@ function App() {
   };
 
   const pixelate = async () => {
+    if (isProcessing) {
+      return;
+    }
     if (!apiKey) {
       console.error("Missing API key: set API_KEY in .env");
       return;
@@ -40,34 +44,73 @@ function App() {
       setAlert({ show: true, message: "Add an image URL or upload a file before pixelating.", variant: "warning" });
       return;
     }
+
+    if (resultUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(resultUrl);
+    }
+
     try {
+      setIsProcessing(true); //Antons önskade tillägg, att man ser att nånting händer
       setAlert({ show: false });
+
+      let blob = null;
+
       if (sourceFile) {
-        const result = await $.ajax({
-          url: `${baseURL}/upload`,
+        const formData = new FormData();
+        formData.append("file", sourceFile, sourceFile.name);
+
+        const response = await fetch(`${baseURL}/file`, {
           method: "POST",
-          headers: { apikey: apiKey },
-          data: sourceFile,
-          processData: false,
-          contentType: sourceFile.type || "application/octet-stream",
-          dataType: "json"
+          headers: {
+            "apy-token": apiKey,
+          },
+          body: formData,
         });
-        setResultUrl(result.result || "");
+
+        if (!response.ok) {
+          throw new Error(response.status.toString());
+        }
+
+        blob = await response.blob();
       }
       else if (imageSrc) {
-        console.log("imageSrc truthy: " + imageSrc);
-        const result = await $.ajax({
-          url: `${baseURL}/url`,
-          method: "GET",
-          data: { url: imageSrc },
-          headers: { apikey: apiKey },
-          dataType: "json"
+        const response = await fetch(`${baseURL}/url/download`, {
+          method: "POST",
+          headers: {
+            "apy-token": apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            image_url: imageSrc,
+          }),
         });
-        console.log(result);
-        setResultUrl(result.result || "");
+
+        if (!response.ok) {
+          throw new Error(response.status.toString());
+        }
+
+        blob = await response.blob();
       }
+
+      if (!blob) {
+        return;
+      }
+
+      setDownloadBlob(blob);
+      setResultUrl(URL.createObjectURL(blob));
+
     } catch (error) {
       console.error(error);
+
+      const status = error.message || "";
+      const message = status.includes("429")
+        ? "API rate limit upnådd, återställs vid midnatt..."
+        : "The image could not be pixelated.";
+
+      setAlert({ show: true, message, variant: "danger" });
+      setResultUrl("");
+    } finally {
+      setIsProcessing(false);
     }
   }
 
@@ -84,12 +127,12 @@ function App() {
       <div className="row g-3">
         <div className="col-12 col-md-6 d-flex">
           <div className="w-100">
-            <PreviewPanel imageSrc={imageSrc} onClick={pixelate} />
+            <PreviewPanel imageSrc={imageSrc} onClick={pixelate} isProcessing={isProcessing} />
           </div>
         </div>
         <div className="col-12 col-md-6 d-flex">
           <div className="w-100">
-            <ResultImage imageSrc={resultUrl} onEmptyDownload={handleEmptyDownload} />
+            <ResultImage imageSrc={resultUrl} downloadBlob={downloadBlob} onEmptyDownload={handleEmptyDownload} />
           </div>
         </div>
       </div>
