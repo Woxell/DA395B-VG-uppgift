@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import $ from 'jquery'
 import './App.css'
 import { Alert } from 'react-bootstrap'
 import Header from './components/Header'
@@ -14,6 +13,7 @@ function App() {
   const [imageSrc, setImageSrc] = useState("");
   const [resultUrl, setResultUrl] = useState("");
   const [sourceFile, setSourceFile] = useState(null);
+  const [downloadBlob, setDownloadBlob] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -44,9 +44,17 @@ function App() {
       setAlert({ show: true, message: "Add an image URL or upload a file before pixelating.", variant: "warning" });
       return;
     }
+
+    if (resultUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(resultUrl);
+    }
+
     try {
       setIsProcessing(true); //Antons önskade tillägg, att man ser att nånting händer
       setAlert({ show: false });
+
+      let blob = null;
+
       if (sourceFile) {
         const formData = new FormData();
         formData.append("file", sourceFile, sourceFile.name);
@@ -58,11 +66,12 @@ function App() {
           },
           body: formData,
         });
-        setResultUrl(result.result || "");
+
         if (!response.ok) {
           throw new Error(response.status.toString());
         }
 
+        blob = await response.blob();
       }
       else if (imageSrc) {
         const response = await fetch(`${baseURL}/url/download`, {
@@ -75,9 +84,21 @@ function App() {
             image_url: imageSrc,
           }),
         });
-        console.log(result);
-        setResultUrl(result.result || "");
+
+        if (!response.ok) {
+          throw new Error(response.status.toString());
+        }
+
+        blob = await response.blob();
       }
+
+      if (!blob) {
+        return;
+      }
+
+      setDownloadBlob(blob);
+      setResultUrl(URL.createObjectURL(blob));
+
     } catch (error) {
       console.error(error);
 
@@ -111,7 +132,7 @@ function App() {
         </div>
         <div className="col-12 col-md-6 d-flex">
           <div className="w-100">
-            <ResultImage imageSrc={resultUrl} onEmptyDownload={handleEmptyDownload} />
+            <ResultImage imageSrc={resultUrl} downloadBlob={downloadBlob} onEmptyDownload={handleEmptyDownload} />
           </div>
         </div>
       </div>
