@@ -8,8 +8,8 @@ import PreviewPanel from './components/PreviewPanel'
 import ResultImage from './components/ResultImage'
 
 function App() {
-  const baseURL = "https://api.apilayer.com/face_pixelizer";
-  const apiKey = import.meta.env.VITE_APILAYER_API_KEY;
+  const baseURL = "https://api.eu.apyhub.com/apyhub/pixelize";
+  const apiKey = import.meta.env.VITE_APYHUB_API_KEY;
 
   const [imageSrc, setImageSrc] = useState("");
   const [resultUrl, setResultUrl] = useState("");
@@ -48,31 +48,46 @@ function App() {
       setIsProcessing(true); //Antons önskade tillägg, att man ser att nånting händer
       setAlert({ show: false });
       if (sourceFile) {
-        const result = await $.ajax({
-          url: `${baseURL}/upload`,
+        const formData = new FormData();
+        formData.append("file", sourceFile, sourceFile.name);
+
+        const response = await fetch(`${baseURL}/file`, {
           method: "POST",
-          headers: { apikey: apiKey },
-          data: sourceFile,
-          processData: false,
-          contentType: sourceFile.type || "application/octet-stream",
-          dataType: "json"
+          headers: {
+            "apy-token": apiKey,
+          },
+          body: formData,
         });
         setResultUrl(result.result || "");
+        if (!response.ok) {
+          throw new Error(response.status.toString());
+        }
+
       }
       else if (imageSrc) {
-        console.log("imageSrc truthy: " + imageSrc);
-        const result = await $.ajax({
-          url: `${baseURL}/url`,
-          method: "GET",
-          data: { url: imageSrc },
-          headers: { apikey: apiKey },
-          dataType: "json"
+        const response = await fetch(`${baseURL}/url/download`, {
+          method: "POST",
+          headers: {
+            "apy-token": apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            image_url: imageSrc,
+          }),
         });
         console.log(result);
         setResultUrl(result.result || "");
       }
     } catch (error) {
       console.error(error);
+
+      const status = error.message || "";
+      const message = status.includes("429")
+        ? "API rate limit upnådd, återställs vid midnatt..."
+        : "The image could not be pixelated.";
+
+      setAlert({ show: true, message, variant: "danger" });
+      setResultUrl("");
     } finally {
       setIsProcessing(false);
     }
