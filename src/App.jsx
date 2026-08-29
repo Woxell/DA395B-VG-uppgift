@@ -15,6 +15,7 @@ function App() {
   const [resultUrl, setResultUrl] = useState("");
   const [sourceFile, setSourceFile] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleInputChange = (e) => {
     const file = e.target.files?.[0] ?? null;
@@ -32,6 +33,9 @@ function App() {
   };
 
   const pixelate = async () => {
+    if (isProcessing) {
+      return;
+    }
     if (!apiKey) {
       console.error("Missing API key: set API_KEY in .env");
       return;
@@ -41,6 +45,7 @@ function App() {
       return;
     }
     try {
+      setIsProcessing(true); //Antons önskade tillägg, att man ser att nånting händer
       setAlert({ show: false });
       if (sourceFile) {
         const result = await $.ajax({
@@ -68,6 +73,8 @@ function App() {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsProcessing(false);
     }
   }
 
@@ -84,7 +91,7 @@ function App() {
       <div className="row g-3">
         <div className="col-12 col-md-6 d-flex">
           <div className="w-100">
-            <PreviewPanel imageSrc={imageSrc} onClick={pixelate} />
+            <PreviewPanel imageSrc={imageSrc} onClick={pixelate} isProcessing={isProcessing} />
           </div>
         </div>
         <div className="col-12 col-md-6 d-flex">
